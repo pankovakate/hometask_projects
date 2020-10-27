@@ -10,7 +10,10 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["/Users/kate/GitHub/hometask_projects/input","/Users/kate/GitHub/hometask_projects/wrong_input","fb2","/Users/kate/GitHub/hometask_projects/db/hometask.db"]
+            "args": ["/Users/kate/GitHub/hometask_projects/input",
+                "/Users/kate/GitHub/hometask_projects/wrong_input",
+                "fb2",
+                "/Users/kate/GitHub/hometask_projects/db/hometask.db"]
         }
     ]
 }

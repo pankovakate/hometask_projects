@@ -1,25 +1,19 @@
 import xml.etree.ElementTree as ET
 import sqlite3
+from sqlite3 import Error
 import logging
 import re
 import os
 import argparse
-'''
-parser = argparse.ArgumentParser()
-parser.add_argument('input_dir_path', help = 'directory path to input folder')
-parser.add_argument('incorrect_input_dir_path', help = 'directory for files with incorrect format')
-parser.add_argument('file_format', help = 'file format to be processed')
-parser.add_argument('connection_to_db', help = 'location of database file')
-parser.parse_args()
-'''
+
 # Monitor folder 'input' for files for .fb2 files (if other file exist - move it to 'incorrect_input' folder)
 def monitor_files(input_dir_path, incorrect_input_dir_path, file_format):
     contents = os.listdir(input_dir_path)
     print('getting the folder contents . . .') #this print-statements should be replaced with a proper logger
-    print('found files in folder: {contents}')
+    print(f'found files in folder: {contents}')
     for file_name in contents:
         if file_name[-(len(file_format)):] == file_format:
-            print ('file {file_name} is {file_format}, ready for analysis')
+            print (f'file {file_name} is {file_format}, ready for analysis')
         else:
             print(f'{file_name} is of unsupported format, moving to {incorrect_input_dir_path}')
             os.replace(f'{input_dir_path}/{file_name}', f'{incorrect_input_dir_path}/{file_name}')
@@ -51,7 +45,7 @@ class FileAnalyzer():
             "./{http://www.gribuser.ru/xml/fictionbook/2.0}description/{http://www.gribuser.ru/xml/fictionbook/2.0}title-info")
         for item in title_info:
             if item.tag == '{http://www.gribuser.ru/xml/fictionbook/2.0}book-title':
-                title = str(item.text)
+                title = item.text.replace(' ', '_')
                 break
         return title
 
@@ -127,30 +121,35 @@ class TextAnalyzer():
 
 # some functions to work with SQL TODO: wrap in class
 def create_connection(db_file):
-    conn = sqlite3.connect(db_file)
+    try:
+        conn = sqlite3.connect(db_file)
+    except Error as e:
+        print(e)
     return conn
 
 
 def create_table(conn, create_table_statement):
     c = conn.cursor()
     c.execute(create_table_statement)
-
-
-def insert_in_allbooks(conn, table):
-    sql = f''' INSERT INTO all_books(book_name, number_of_paragraphs, number_of_words, number_of_letters, words_with_capital_letters, words_in_lowercase)
-                  VALUES({title},{n_sections},{w_count},{l_count},{cap_wordcount},{lower_wordcount}) '''
-    cur = conn.cursor()
-    cur.execute(sql, table)
     conn.commit()
 
 
-def insert_in_book_name(conn, book_name, word_freq, capitalized_freq):
+def insert_in_allbooks(conn, book_name, number_of_paragraphs, number_of_words, number_of_letters, words_with_capital_letters, words_in_lowercase):
+    sql = ''' INSERT INTO all_books (book_name, number_of_paragraphs, number_of_words, number_of_letters, words_with_capital_letters, words_in_lowercase)
+                  VALUES(?,?,?,?,?,?) '''
+    params = (book_name, number_of_paragraphs, number_of_words, number_of_letters, words_with_capital_letters, words_in_lowercase)
+    cur = conn.cursor()
+    cur.execute(sql, params)
+    conn.commit()
+
+def insert_in_book_name(conn, title, word_freq, capitalized_freq):
     for key in word_freq.keys():
         sql = f''' INSERT INTO {title}(word, count, count_capitalized)
-                      VALUES({key},{word_freq[value]},{capitalized_freq[value]}) '''
+                      VALUES(?,?,?) '''
 
         cur = conn.cursor()
-        cur.execute(sql, book_name)
+        params = (key, word_freq[key], capitalized_freq[key])
+        cur.execute(sql, params)
         conn.commit()
 
 def main():
@@ -182,7 +181,7 @@ def main():
         capitalized_freq = text_analyzer.get_capitalized_freq(text)
 
         sql_create_all_books_table = """ CREATE TABLE IF NOT EXISTS all_books (
-                                                book_name text NOT NULL,
+                                                book_name varchar,
                                                 number_of_paragraphs integer,
                                                 number_of_words integer,
                                                 number_of_letters integer,
@@ -191,17 +190,17 @@ def main():
                                             ); """
 
         sql_create_book_name_table = """CREATE TABLE IF NOT EXISTS {} (
-                                            word text NOT NULL,
+                                            word varchar,
                                             count integer,
                                             count_capitalized integer
                                         );""".format(title)
 
         conn = create_connection(args.connection_to_db)
 
-        all_books_table = create_table(conn, sql_create_all_books_table)
-        book_table = create_table(conn, sql_create_book_name_table)
-        insert_in_allbooks(conn, all_books_table)
-        insert_in_book_name(conn, book_table, word_freq, capitalized_freq)
+        create_table(conn, sql_create_all_books_table)
+        create_table(conn, sql_create_book_name_table)
+        insert_in_allbooks(conn, title, n_sections, w_count, l_count, cap_wordcount, lower_wordcount)
+        insert_in_book_name(conn, title, word_freq, capitalized_freq)
 
 if __name__ == '__main__':
     main()
