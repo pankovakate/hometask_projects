@@ -5,17 +5,18 @@ import logging
 import re
 import os
 import argparse
+import datetime
 
 # Monitor folder 'input' for files for .fb2 files (if other file exist - move it to 'incorrect_input' folder)
 def monitor_files(input_dir_path, incorrect_input_dir_path, file_format):
     contents = os.listdir(input_dir_path)
-    print('getting the folder contents . . .') #this print-statements should be replaced with a proper logger
-    print(f'found files in folder: {contents}')
+    logging.info('Getting the folder contents . . .')
+    logging.info(f'Found files in folder: {contents}')
     for file_name in contents:
         if file_name[-(len(file_format)):] == file_format:
-            print (f'file {file_name} is {file_format}, ready for analysis')
+            logging.info(f'File {file_name} is {file_format}, ready for analysis')
         else:
-            print(f'{file_name} is of unsupported format, moving to {incorrect_input_dir_path}')
+            logging.warning(f'{file_name} is of unsupported format, moving to {incorrect_input_dir_path}')
             os.replace(f'{input_dir_path}/{file_name}', f'{incorrect_input_dir_path}/{file_name}')
 
 # a class that prepares file text for analysis and gets some file data
@@ -160,25 +161,43 @@ def main():
     parser.add_argument('connection_to_db', help = 'location of database file')
     args = parser.parse_args()
 
+    logging.basicConfig(filename = 'hometask.log', level = logging.INFO)
+    logging.info(f'Starting program at {datetime.datetime.now()}')
+
     monitor_files(input_dir_path = args.input_dir_path, incorrect_input_dir_path = args.incorrect_input_dir_path, file_format = args.file_format)
     contents = os.listdir(args.input_dir_path)
 
     for file in contents:
 
+        logging.info(f'Start analyzing {file}. . .')
+
         file = args.input_dir_path+'/'+file
         
         file_analyzer = FileAnalyzer(file)
         title = file_analyzer.get_title(file)
+        logging.info(f'Filename is {title}')
+
         n_sections = file_analyzer.get_number_of_sections(file)
+        logging.info(f'Number of sections is {n_sections}')
+
         text = file_analyzer.prepare_file_text(file)
 
         text_analyzer = TextAnalyzer(text)
         w_count = text_analyzer.word_count(text)
+        logging.info(f'Number of words is {w_count}')
+
         l_count = text_analyzer.letter_count(text)
+        logging.info(f'Number of letters is {l_count}')
+
         lower_wordcount = text_analyzer.lowercase_wordcount(text)
+        logging.info(f'Number of words in lowercase is {lower_wordcount}')
+
         cap_wordcount = text_analyzer.capitalized_wordcount(text)
+        logging.info(f'Number of words with capital letters is {cap_wordcount}')
+
         word_freq = text_analyzer.get_word_freq(text)
         capitalized_freq = text_analyzer.get_capitalized_freq(text)
+        logging.info('Getting frequencies of each word in the file. . .')
 
         sql_create_all_books_table = """ CREATE TABLE IF NOT EXISTS all_books (
                                                 book_name varchar,
@@ -196,11 +215,17 @@ def main():
                                         );""".format(title)
 
         conn = create_connection(args.connection_to_db)
+        logging.info(f'Creating a connection to database {args.connection_to_db}')
 
         create_table(conn, sql_create_all_books_table)
+        logging.info('Creating table all_books')
         create_table(conn, sql_create_book_name_table)
         insert_in_allbooks(conn, title, n_sections, w_count, l_count, cap_wordcount, lower_wordcount)
+        logging.info('Writing data to all_books table')
         insert_in_book_name(conn, title, word_freq, capitalized_freq)
+        logging.info(f'Writing data to {title} table')
+
+        logging.info(f'Program finished at {datetime.datetime.now()}')
 
 if __name__ == '__main__':
     main()
