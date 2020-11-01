@@ -1,0 +1,6 @@
+{
+    "dev":{
+        "database": "/Users/kate/GitHub/hometask_projects/db/hometask.db",
+        "test_data_folder":"/Users/kate/GitHub/hometask_projects/framework_task/test_data"
+    }
+}
