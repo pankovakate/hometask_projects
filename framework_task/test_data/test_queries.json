@@ -1,17 +1,23 @@
 {
     "tests":[
         {
-            "name": "",
-            "query": "",
-            "expected": ""
+            "name": "Check table 'all_books' for counts",
+            "query": "SELECT COUNT(*) FROM all_books",
+            "expected": "1"
         },
         {
-            "name": "",
-            "query": "",
-            "expected": ""
+            "name": "Check 'Цветы_для_Элджернона' table for counts",
+            "query": "SELECT COUNT(*) FROM Цветы_для_Элджернона",
+            "expected": "13685"
         },
-        {"name": "",
-            "query": "",
-            "expected": ""}
+        {"name": "Check 'all_books' for NULL values",
+            "query": "SELECT * FROM all_books WHERE book_name IS NULL OR number_of_paragraphs IS NULL OR number_of_words IS NULL OR number_of_letters IS NULL OR words_with_capital_letters IS NULL OR words_in_lowercase IS NULL",
+            "expected": ""},
+
+        {
+            "name": "Check 'Цветы_для_Элджернона' for NULL values",
+            "query": "SELECT COUNT * FROM Цветы_для_Элджернона WHERE word IS NULL OR 'count' IS NULL OR count_capitalized IS NULL",
+            "expected": ""
+        }   
     ]
 }
