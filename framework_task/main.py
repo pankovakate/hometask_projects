@@ -18,5 +18,5 @@ def run():
 
     logger.finish_test()
 
-if name == '__main__':
+if __name__ == '__main__':
     run()
