@@ -1,3 +1,5 @@
+
+
 class Result():
     def __init__(self):
         self.result_file = open('results/result.log', 'w')

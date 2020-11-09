@@ -1,9 +1,11 @@
-class Configurator():
 
-    def __init__(self, env):
-        with open('config.json') as f:
+
+class Configurator:
+
+    def __init__(self, environment):
+        with open('/Users/kate/GitHub/hometask_projects/framework_task/config.json') as f:
             self.config = eval(f.read()) 
-        self.config = self.config[env]
+        self.config = self.config[environment]
 
     def get_database_url(self):
         return self.config['database']

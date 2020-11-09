@@ -6,7 +6,7 @@ from test_processor import TestProcessor
 
 
 def run():
-    config = Configurator(argv[1])
+    config = Configurator('dev')
     database_url = config.get_database_url()
     
     connector = Connector(database_url)

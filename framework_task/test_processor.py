@@ -28,7 +28,7 @@ class TestProcessor:
 
             query = test['query']
             expected_result = test['expected']
-            actual_result = self.connector.expecute(query)
+            actual_result = self.connector.execute(query)
 
             if actual_result == expected_result:
                 self.logger.add_pass(query, actual_result)
