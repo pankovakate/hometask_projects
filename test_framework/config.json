@@ -1,7 +1,7 @@
 {
     "dev":{
-        "database": "/Users/kate/GitHub/hometask_projects/db/hometask.db",
-        "test_data_folder":"/Users/kate/GitHub/hometask_projects/framework_task/test_framework/test_data"
+        "database": "/Users/kate/GitHub/hometask_projects/hometask_app/db/hometask.db",
+        "test_data_folder":"/Users/kate/GitHub/hometask_projects/test_framework/test_data"
     },
     
         "uat":{

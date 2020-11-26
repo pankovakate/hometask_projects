@@ -4,13 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "Python: Debug Framework",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
-        },
+        
         {
             "name": "Python: Current File",
             "type": "python",
@@ -18,10 +12,10 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "/Users/kate/GitHub/hometask_projects/input",
-                "/Users/kate/GitHub/hometask_projects/wrong_input",
+                "/Users/kate/GitHub/hometask_projects/hometask_app/input",
+                "/Users/kate/GitHub/hometask_projects/hometask_app/wrong_input",
                 "fb2",
-                "/Users/kate/GitHub/hometask_projects/db/hometask.db"
+                "/Users/kate/GitHub/hometask_projects/hometask_app/db/hometask.db"
             ]
         }
     ]
