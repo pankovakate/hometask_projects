@@ -1,0 +1,37 @@
+CODE_CHANGES == getGitChanges()
+pipeline {
+    agent { docker { image 'python:latest'} }
+    
+    stages {
+
+        stage("build") {
+            
+            when {
+                expression {
+                    CODE_CHANGES == true
+                }
+            }
+
+            steps {
+                sh 'pip install xml'
+                sh 'pip install sqlite3'
+                echo 'running application. . .'
+                sh 'python hometask_app/hometask_3.py "hometask_app/input" "hometask_app/wrong_input" "fb2" "hometask_app/db/hometask.db"'
+
+            }
+
+        }
+
+        stage("test") {
+
+            steps {
+                echo 'testing the database. . .'
+                sh 'python test_framework/main.py'
+                
+            }
+
+        }
+
+        }
+    }
+}
